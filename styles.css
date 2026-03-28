@@ -97,7 +97,7 @@
 #sf-fi-tooltip .sf-fi-lbl {
   flex-shrink:  0 !important;
   min-width:    115px !important;
-  color:        #64748b !important;
+  color:        #f1f5f9 !important;
   font-size:    11px !important;
   padding-top:  1px !important;
 }
@@ -223,7 +223,7 @@
 #sf-fi-tooltip .sf-fi-btn {
   background:    transparent !important;
   border:        1px solid #0ea5e9 !important;
-  color:         #0ea5e9 !important;
+  color:         #fff !important;
   padding:       4px 12px !important;
   border-radius: 4px !important;
   font-size:     11px !important;
