@@ -1,0 +1,250 @@
+/* ============================================================
+   SF Field Inspector — Tooltip Styles
+   These are injected into every Salesforce page.
+   All rules are scoped to #sf-fi-tooltip to avoid conflicts.
+   ============================================================ */
+
+#sf-fi-tooltip {
+  /* Positioning */
+  position:   fixed !important;
+  z-index:    2147483647 !important;
+
+  /* Size */
+  width:      360px !important;
+  max-height: 560px !important;
+  overflow-y: auto !important;
+
+  /* Look */
+  background:    #0f172a !important;
+  border:        1.5px solid #0ea5e9 !important;
+  border-radius: 10px !important;
+  box-shadow:
+    0 0 0 1px rgba(14, 165, 233, 0.15),
+    0 8px 32px rgba(0, 0, 0, 0.55),
+    0 2px 8px  rgba(14, 165, 233, 0.2) !important;
+
+  /* Typography */
+  font-family:   'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif !important;
+  font-size:     12px !important;
+  line-height:   1.45 !important;
+  color:         #e2e8f0 !important;
+
+  /* Animation — hidden by default */
+  opacity:    0 !important;
+  transform:  translateY(6px) !important;
+  transition: opacity 0.18s ease, transform 0.18s ease !important;
+  pointer-events: none !important;
+}
+
+#sf-fi-tooltip.sf-fi-visible {
+  opacity:        1 !important;
+  transform:      translateY(0) !important;
+  pointer-events: auto !important;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+#sf-fi-tooltip .sf-fi-header {
+  display:         flex !important;
+  align-items:     center !important;
+  gap:             6px !important;
+  padding:         9px 13px !important;
+  background:      linear-gradient(130deg, #0c2a4a 0%, #0369a1 100%) !important;
+  border-radius:   8px 8px 0 0 !important;
+  font-weight:     700 !important;
+  font-size:       12px !important;
+  color:           #f0f9ff !important;
+  letter-spacing:  0.2px !important;
+  flex-shrink:     0 !important;
+}
+
+#sf-fi-tooltip .sf-fi-icon {
+  font-size: 14px !important;
+}
+
+#sf-fi-tooltip .sf-fi-close {
+  margin-left:   auto !important;
+  background:    transparent !important;
+  border:        none !important;
+  color:         rgba(255, 255, 255, 0.6) !important;
+  font-size:     11px !important;
+  cursor:        pointer !important;
+  padding:       2px 5px !important;
+  border-radius: 4px !important;
+  transition:    background 0.12s, color 0.12s !important;
+  line-height:   1 !important;
+}
+#sf-fi-tooltip .sf-fi-close:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color:      #fff !important;
+}
+
+/* ── Body rows ───────────────────────────────────────────── */
+#sf-fi-tooltip .sf-fi-body {
+  padding: 6px 13px 4px !important;
+}
+
+#sf-fi-tooltip .sf-fi-row {
+  display:       flex !important;
+  align-items:   baseline !important;
+  gap:           8px !important;
+  padding:       4px 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+#sf-fi-tooltip .sf-fi-row:last-child {
+  border-bottom: none !important;
+}
+
+#sf-fi-tooltip .sf-fi-lbl {
+  flex-shrink:  0 !important;
+  min-width:    115px !important;
+  color:        #64748b !important;
+  font-size:    11px !important;
+  padding-top:  1px !important;
+}
+
+#sf-fi-tooltip .sf-fi-val {
+  color:      #f1f5f9 !important;
+  word-break: break-word !important;
+  font-size:  12px !important;
+}
+
+/* API name — highlighted */
+#sf-fi-tooltip .sf-fi-val.sf-fi-highlight {
+  color:       #38bdf8 !important;
+  font-weight: 700 !important;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace !important;
+  font-size:   12px !important;
+}
+
+/* Monospace values */
+#sf-fi-tooltip .sf-fi-val.sf-fi-mono {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace !important;
+}
+
+/* Block layout (formula etc.) */
+#sf-fi-tooltip .sf-fi-row-block {
+  flex-direction: column !important;
+  align-items:    flex-start !important;
+  gap:            4px !important;
+  padding:        5px 0 !important;
+}
+
+#sf-fi-tooltip .sf-fi-row-lbl {
+  color:     #64748b !important;
+  font-size: 11px !important;
+}
+
+#sf-fi-tooltip .sf-fi-code {
+  width:        100% !important;
+  box-sizing:   border-box !important;
+  background:   #020d1a !important;
+  border:       1px solid #1e3a5f !important;
+  border-radius: 5px !important;
+  padding:      6px 8px !important;
+  font-family:  'SF Mono', 'Fira Code', 'Courier New', monospace !important;
+  font-size:    11px !important;
+  color:        #86efac !important;
+  white-space:  pre-wrap !important;
+  word-break:   break-all !important;
+  max-height:   130px !important;
+  overflow-y:   auto !important;
+  line-height:  1.4 !important;
+}
+
+/* ── Loading / Error states ──────────────────────────────── */
+#sf-fi-tooltip .sf-fi-loading,
+#sf-fi-tooltip .sf-fi-error {
+  display:        flex !important;
+  align-items:    center !important;
+  gap:            10px !important;
+  padding:        16px 14px !important;
+  color:          #94a3b8 !important;
+  font-size:      12px !important;
+  font-style:     italic !important;
+}
+
+#sf-fi-tooltip .sf-fi-error {
+  color: #fca5a5 !important;
+}
+
+/* Spinner */
+#sf-fi-tooltip .sf-fi-spinner {
+  width:        16px !important;
+  height:       16px !important;
+  border:       2px solid rgba(14, 165, 233, 0.25) !important;
+  border-top:   2px solid #0ea5e9 !important;
+  border-radius: 50% !important;
+  animation:    sf-fi-spin 0.7s linear infinite !important;
+  flex-shrink:  0 !important;
+}
+
+@keyframes sf-fi-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── FLS SOQL section ────────────────────────────────────── */
+#sf-fi-tooltip .sf-fi-section-label {
+  margin-top:    8px !important;
+  margin-bottom: 4px !important;
+  font-size:     10px !important;
+  font-weight:   700 !important;
+  color:         #38bdf8 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+#sf-fi-tooltip .sf-fi-section-hint {
+  font-weight:   400 !important;
+  font-size:     9px !important;
+  color:         #475569 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  display:       block !important;
+  margin-top:    2px !important;
+}
+
+#sf-fi-tooltip .sf-fi-soql {
+  color:      #7dd3fc !important;
+  max-height: 100px !important;
+  font-size:  10px !important;
+}
+
+/* ── Footer ──────────────────────────────────────────────── */
+#sf-fi-tooltip .sf-fi-footer {
+  display:       flex !important;
+  align-items:   center !important;
+  gap:           10px !important;
+  padding:       7px 13px 9px !important;
+  border-top:    1px solid rgba(255, 255, 255, 0.07) !important;
+  background:    rgba(255, 255, 255, 0.02) !important;
+  border-radius: 0 0 8px 8px !important;
+}
+
+#sf-fi-tooltip .sf-fi-btn {
+  background:    transparent !important;
+  border:        1px solid #0ea5e9 !important;
+  color:         #0ea5e9 !important;
+  padding:       4px 12px !important;
+  border-radius: 4px !important;
+  font-size:     11px !important;
+  cursor:        pointer !important;
+  font-family:   inherit !important;
+  transition:    background 0.14s, color 0.14s !important;
+  white-space:   nowrap !important;
+}
+#sf-fi-tooltip .sf-fi-btn:hover {
+  background: #0ea5e9 !important;
+  color:      #fff !important;
+}
+#sf-fi-tooltip .sf-fi-btn.sf-fi-btn-success {
+  background: #16a34a !important;
+  border-color: #16a34a !important;
+  color:      #fff !important;
+}
+
+#sf-fi-tooltip .sf-fi-hint {
+  color:     #475569 !important;
+  font-size: 10px !important;
+  margin-left: auto !important;
+  white-space: nowrap !important;
+}

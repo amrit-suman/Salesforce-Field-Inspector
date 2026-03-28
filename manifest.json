@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "SF Field Inspector",
+  "version": "1.0.0",
+  "description": "Hover over any field on a Salesforce record page to instantly see its API name, type, formula, lookup references, and more.",
+  "permissions": ["clipboardWrite", "cookies"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
+  "host_permissions": [
+    "https://*.salesforce.com/*",
+    "https://*.lightning.force.com/*",
+    "https://*.force.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.salesforce.com/lightning/r/*",
+        "https://*.lightning.force.com/lightning/r/*",
+        "https://*.force.com/lightning/r/*"
+      ],
+      "js": ["page_bridge.js"],
+      "run_at": "document_idle",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://*.salesforce.com/lightning/r/*",
+        "https://*.lightning.force.com/lightning/r/*",
+        "https://*.force.com/lightning/r/*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "SF Field Inspector"
+  }
+}
