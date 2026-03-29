@@ -48,6 +48,8 @@ Built to complement **Salesforce Inspector Advanced** and **Salesforce Inspector
 
 View the full source code on [GitHub](https://github.com/amrit-suman/Salesforce-Field-Inspector).
 
+> 🔒 [Privacy Policy](#privacy-policy)
+
 ---
 
 ## Privacy Policy
