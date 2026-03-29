@@ -425,8 +425,7 @@
 
       <h2>FLS SOQL</h2>
       <p>The <strong>Check FLS ↗</strong> button pre-fills this query in Salesforce Inspector's Data Export tab:</p>
-      <pre><code>SELECT Parent.Label, Parent.Profile.Name, Parent.IsOwnedByProfile,
-       PermissionsRead, PermissionsEdit
+      <pre><code>SELECT Parent.Label, Parent.Profile.Name, Parent.IsOwnedByProfile, PermissionsRead, PermissionsEdit
 FROM FieldPermissions
 WHERE SobjectType = 'Account'
 AND Field = 'Account.Industry'
