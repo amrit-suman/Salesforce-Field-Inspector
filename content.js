@@ -521,7 +521,6 @@ const SFFieldInspector = (() => {
 
     add('Required',   !field.nillable  ? 'Yes' : 'No');
     add('Updateable',  field.updateable ? 'Yes' : 'No');
-    add('Createable',  field.createable ? 'Yes' : 'No');
     if (field.unique)        add('Unique',        'Yes');
     if (field.externalId)    add('External ID',   'Yes');
     if (field.encrypted)     add('Encrypted',     'Yes');
