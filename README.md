@@ -8,6 +8,22 @@ The two extensions work best together. Use this extension to identify the field,
 
 ---
 
+## Screenshots
+
+| Text Field | Formula Field |
+|:---:|:---:|
+| ![Text Field](assets/01-text-field.png) | ![Formula Field](assets/02-formula-field.png) |
+
+| Lookup Field | Picklist Field |
+|:---:|:---:|
+| ![Lookup Field](assets/03-lookup-field.png) | ![Picklist Field](assets/04-picklist-field.png) |
+
+| Currency Field | Master-Detail Field |
+|:---:|:---:|
+| ![Currency Field](assets/05-currency-field.png) | ![Master-Detail Field](assets/06-master-detail-field.png) |
+
+---
+
 ## What it does
 
 Hover over any field label or value on a record page and a tooltip appears showing:
