@@ -1,8 +1,18 @@
-# Salesforce Field Inspector
+<div class="hero">
+  <img src="icon48.png" alt="Salesforce Field Inspector" />
+  <h1>Salesforce Field Inspector</h1>
+  <p>Instant field metadata on any Salesforce Lightning record page — no Setup navigation required.</p>
+</div>
 
-> Hover over any field on a Salesforce Lightning record page to instantly see its API name, type, formula, picklist values, history tracking, and more — no Setup navigation required.
+> Built to complement **Salesforce Inspector Advanced** and **Salesforce Inspector Reloaded**. Hover over any field to identify it instantly, then hand off to Salesforce Inspector for deeper data or FLS analysis.
 
-Built to complement **Salesforce Inspector Advanced** and **Salesforce Inspector Reloaded**. Use this extension to identify a field on the page, then hand off to Salesforce Inspector for deeper data or FLS analysis via the built-in **Check FLS ↗** button.
+---
+
+## Why Salesforce Field Inspector?
+
+Every Salesforce developer or admin has been there — you're on a record page and need the API name of a field. The usual path is: open Setup → Object Manager → find the object → find the field. That's 4–5 clicks every time.
+
+**Salesforce Field Inspector eliminates that entirely.** Just hover over the field.
 
 ---
 
@@ -10,7 +20,7 @@ Built to complement **Salesforce Inspector Advanced** and **Salesforce Inspector
 
 | Property | Details |
 |---|---|
-| **API Name** | Highlighted — click **Copy API Name** to copy |
+| **API Name** | Highlighted in blue — click **Copy API Name** to copy instantly |
 | **Label** | Display label as shown in the UI |
 | **Type** | Human-readable type (Text, Lookup, Formula, Picklist, etc.) |
 | **Lookup / Master-Detail** | Referenced object, relationship name, cascade delete flag |
@@ -25,27 +35,14 @@ Built to complement **Salesforce Inspector Advanced** and **Salesforce Inspector
 
 ---
 
-## How to use
+## Security & Privacy
 
-1. Open any Salesforce Lightning record page
-2. Hover over a **field label** or **field value** for ~0.8 seconds
-3. The metadata tooltip appears — move your mouse into it to keep it open
-4. Click **Copy API Name** to copy the field's API name
-5. Click **Check FLS ↗** to open FLS analysis in Salesforce Inspector
-6. Click **✕** or anywhere outside to dismiss
+All data stays on your device. The extension makes API calls **only to your own Salesforce org** — no external servers, no analytics, no data collection of any kind.
 
----
-
-## Requirements
-
-- Google Chrome or Microsoft Edge
-- Salesforce Lightning Experience (record pages matching `/lightning/r/*/view`)
-- API Enabled permission on your Salesforce user profile
+<a href="https://amrit-suman.github.io/Salesforce-Field-Inspector/#/privacy-policy" target="_blank" rel="noopener noreferrer">🔒 Read the full Privacy Policy</a>
 
 ---
 
 ## Source
 
 View the full source code on [GitHub](https://github.com/amrit-suman/Salesforce-Field-Inspector).
-
-<a href="https://amrit-suman.github.io/Salesforce-Field-Inspector/#/privacy-policy" target="_blank" rel="noopener noreferrer">🔒 Privacy Policy</a>
