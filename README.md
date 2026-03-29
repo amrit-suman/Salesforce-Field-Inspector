@@ -193,3 +193,25 @@ Salesforce Field Inspector/
 **"Check FLS ↗" shows an alert or does nothing**
 
 - Install **Salesforce Inspector Advanced** or **Salesforce Inspector Reloaded** from the Chrome Web Store and make sure it is enabled
+
+---
+
+## Disclaimer
+
+**No affiliation with Salesforce**
+Salesforce Field Inspector is an independent, open-source project and is not affiliated with, endorsed by, sponsored by, or officially connected with Salesforce, Inc. in any way. "Salesforce" and related trademarks are the property of Salesforce, Inc.
+
+**Provided as-is**
+This extension is provided "as-is", without warranty of any kind, express or implied. The developer makes no guarantees regarding the accuracy, completeness, or reliability of the metadata displayed. All metadata is fetched directly from your own Salesforce org via Salesforce's public REST and Tooling APIs — the extension does not modify or interpret it.
+
+**Limitation of liability**
+In no event shall the developer be liable for any direct, indirect, incidental, special, or consequential damages arising from the use or inability to use this extension, including but not limited to API rate limit exhaustion, session expiry, loss of data, or decisions made based on metadata displayed.
+
+**User responsibility**
+Users are solely responsible for ensuring their use of this extension complies with their organisation's IT, security, and data governance policies. The extension accesses the Salesforce API using the user's own authenticated session — the developer has no access to, and no control over, the data in any user's Salesforce org.
+
+**Third-party extensions**
+The Check FLS feature relies on third-party Chrome extensions (Salesforce Inspector Advanced / Salesforce Inspector Reloaded) that are not affiliated with or controlled by this project. The developer is not responsible for the behaviour, availability, or data handling of those extensions.
+
+**Open source**
+This project is open source and licensed under the [MIT License](LICENSE). You are free to fork, modify, and use this extension for your own purposes — personal or within your organisation — in accordance with the terms of that licence. Contributions and improvements via pull requests are welcome.
