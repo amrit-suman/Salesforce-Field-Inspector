@@ -7,7 +7,7 @@
 
 ## Overview
 
-Salesforce Field Inspector is a Chrome/Edge extension that displays field schema metadata in a tooltip when you hover over fields on Salesforce Lightning record pages. This policy describes exactly what data the extension accesses, how it is used, and what it does not do.
+Salesforce Field Inspector displays field schema metadata in a tooltip when you hover over fields on Salesforce Lightning record pages. This policy describes exactly what data the extension accesses, how it is used, and what it does not do.
 
 ---
 
@@ -37,18 +37,19 @@ This metadata is:
 - **No record data** — the extension never reads field values from your Salesforce records
 - **No personal information** — no names, emails, user IDs, or profile data
 - **No browsing history** — the extension is scoped to Salesforce Lightning record pages only
-- **No keystrokes or clipboard reads** — clipboard access is write-only (Copy API Name button)
+- **No clipboard reads** — clipboard access is write-only (Copy API Name button only)
 
 ---
 
 ## Local Data Only
 
-All data processed by this extension stays entirely on your device:
-
-- **No external servers** — the extension makes no calls to any server other than your own Salesforce org
-- **No third-party services** — no analytics, no telemetry, no crash reporting, no advertising networks
-- **No data sharing** — your data is never shared with, sold to, or transmitted to any third party for any purpose
-- **No legal disclosures** — no personal data is collected, so none can be shared for legal or compliance purposes
+| Principle | Detail |
+|---|---|
+| **Local data only** | All data stays on your device. Nothing is sent to any external server. |
+| **No third-party sharing** | Data is never shared with, sold to, or transmitted to any third party. |
+| **No data collection** | No personal or record data is collected, stored, or used. |
+| **No legal disclosures** | No personal data is collected, so none can be shared for legal purposes. |
+| **Privacy by design** | Only the minimum permissions needed to function are requested. |
 
 ---
 
@@ -56,10 +57,10 @@ All data processed by this extension stays entirely on your device:
 
 | Permission | Why it is needed |
 |---|---|
-| `cookies` | Reads the `sid` session cookie (even when HttpOnly) to authenticate REST API calls to your Salesforce org |
+| `cookies` | Reads the `sid` session cookie to authenticate REST API calls to your Salesforce org |
 | `clipboardWrite` | Powers the **Copy API Name** button — write-only, the extension never reads your clipboard |
-| `management` | Detects whether Salesforce Inspector Advanced or Salesforce Inspector Reloaded is installed, to enable the **Check FLS ↗** button |
-| Host access to `*.salesforce.com`, `*.lightning.force.com`, `*.force.com` | Required to inject the content script on Salesforce pages and to call the Salesforce REST/Tooling APIs |
+| `management` | Detects whether Salesforce Inspector is installed to enable the **Check FLS ↗** button |
+| Host access to `*.salesforce.com`, `*.lightning.force.com`, `*.force.com` | Required to inject the content script and call the Salesforce REST/Tooling APIs |
 
 ---
 

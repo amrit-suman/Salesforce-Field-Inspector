@@ -1,2 +1,2 @@
 - [Home](/)
-- [Privacy Policy](/#privacy-policy)
+- [Privacy Policy](/privacy-policy)
