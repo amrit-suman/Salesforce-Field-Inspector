@@ -6,118 +6,570 @@
   <title>Salesforce Field Inspector</title>
   <meta name="description" content="Hover over any field on a Salesforce Lightning record page to instantly see its API name, type, formula, and more." />
   <link rel="icon" type="image/png" href="icon48.png" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify/lib/themes/vue.css" />
   <style>
-    /* ── Sidebar title ─────────────────────────── */
-    .app-name-link {
-      font-size: 15px !important;
-      font-weight: 700 !important;
-      color: #2c3e50 !important;
-      display: flex !important;
-      align-items: center !important;
-      gap: 8px !important;
-    }
-    .app-name-link img {
-      width: 24px;
-      height: 24px;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      font-size: 15px;
+      color: #2c3e50;
+      background: #fff;
     }
 
-    /* ── Sidebar nav ───────────────────────────── */
-    .sidebar-nav ul {
-      padding: 0 !important;
+    /* ── NAVBAR ──────────────────────────────────────────── */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 58px;
+      background: linear-gradient(135deg, #0c2a4a 0%, #0369a1 100%);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 24px;
+      z-index: 1000;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
     }
-    .sidebar-nav li a {
-      font-size: 14px !important;
-      color: #364149 !important;
-      padding: 6px 0 !important;
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #f0f9ff;
+      font-weight: 700;
+      font-size: 16px;
+      white-space: nowrap;
+      margin-right: auto;
     }
-    .sidebar-nav li.active > a {
-      color: #42b983 !important;
-      font-weight: 600 !important;
-      border-left: 3px solid #42b983 !important;
-      padding-left: 10px !important;
+    .navbar-brand img {
+      width: 30px;
+      height: 30px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 4px;
+    }
+    .nav-links a {
+      color: rgba(240,249,255,0.85);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 7px 16px;
+      border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .nav-links a:hover {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+    .nav-links a.active {
+      background: rgba(14,165,233,0.35);
+      color: #fff;
+    }
+    .navbar-gh {
+      color: rgba(240,249,255,0.7);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 6px 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .navbar-gh:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
     }
 
-    /* ── GitHub corner ─────────────────────────── */
-    .github-corner svg {
-      fill: #42b983 !important;
-      color: #fff !important;
+    /* ── LAYOUT ──────────────────────────────────────────── */
+    .page-wrapper {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 90px 40px 80px;
     }
 
-    /* ── Content typography ────────────────────── */
-    .markdown-section h1 {
+    /* ── HERO ────────────────────────────────────────────── */
+    .hero {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 36px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid #e8edf2;
+    }
+    .hero img {
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+    }
+    .hero h1 {
       font-size: 2rem;
-      color: #2c3e50;
-      margin-bottom: 12px;
+      color: #0c2a4a;
+      margin-bottom: 6px;
     }
-    .markdown-section h2 {
-      font-size: 1.4rem;
-      color: #2c3e50;
-      border-bottom: 1px solid #eaecef;
+    .hero p {
+      color: #476582;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ── CONTENT SECTIONS ────────────────────────────────── */
+    h2 {
+      font-size: 1.35rem;
+      color: #0c2a4a;
+      margin: 36px 0 14px;
       padding-bottom: 8px;
+      border-bottom: 2px solid #e0f2fe;
     }
-    .markdown-section table th {
-      background: #f5f7fa;
-      color: #2c3e50;
+    h3 {
+      font-size: 1.05rem;
+      color: #0369a1;
+      margin: 24px 0 10px;
     }
-    .markdown-section blockquote {
+    p { line-height: 1.7; color: #476582; margin-bottom: 12px; }
+    ul, ol { padding-left: 22px; color: #476582; line-height: 1.9; margin-bottom: 12px; }
+    li { margin-bottom: 2px; }
+    code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #0369a1;
+    }
+
+    /* ── CALLOUT ─────────────────────────────────────────── */
+    .callout {
       border-left: 4px solid #42b983;
-      background: #f9fff9;
+      background: #f0fdf4;
+      padding: 14px 18px;
+      border-radius: 0 6px 6px 0;
+      color: #166534;
+      margin: 20px 0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .callout.blue {
+      border-left-color: #0ea5e9;
+      background: #f0f9ff;
+      color: #0c4a6e;
+    }
+
+    /* ── TABLE ───────────────────────────────────────────── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    th {
+      background: #0369a1;
+      color: #fff;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+    }
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #e2e8f0;
       color: #476582;
     }
+    tr:nth-child(even) td { background: #f8fafc; }
 
-    /* ── Version badges ────────────────────────── */
-    .badge-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 24px;
-    }
-    .badge-pill {
+    /* ── BADGES ──────────────────────────────────────────── */
+    .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 28px; }
+    .badge {
       display: inline-flex;
-      align-items: center;
       border-radius: 4px;
       overflow: hidden;
       font-size: 12px;
       font-weight: 600;
     }
-    .badge-pill .badge-label {
-      background: #555;
-      color: #fff;
-      padding: 4px 8px;
+    .badge .b-label { background: #475569; color: #fff; padding: 4px 9px; }
+    .badge .b-val   { background: #42b983; color: #fff; padding: 4px 9px; }
+    .badge .b-val.blue { background: #0ea5e9; }
+
+    /* ── FEATURE GRID ────────────────────────────────────── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+      margin: 18px 0;
     }
-    .badge-pill .badge-version {
-      background: #42b983;
-      color: #fff;
-      padding: 4px 8px;
+    .feature-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      background: #fafcff;
     }
-    .badge-pill .badge-version.blue {
-      background: #0ea5e9;
+    .feature-card .fc-icon { font-size: 22px; margin-bottom: 8px; }
+    .feature-card .fc-title { font-weight: 700; color: #0c2a4a; margin-bottom: 4px; font-size: 14px; }
+    .feature-card .fc-desc  { font-size: 13px; color: #64748b; line-height: 1.5; }
+
+    /* ── PRIVACY TABLE ───────────────────────────────────── */
+    .privacy-principle { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+    .privacy-principle:last-child { border-bottom: none; }
+    .pp-icon { font-size: 18px; flex-shrink: 0; }
+    .pp-title { font-weight: 600; color: #0c2a4a; font-size: 14px; }
+    .pp-desc  { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+    /* ── PAGINATION ──────────────────────────────────────── */
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid #e8edf2;
     }
+    .pagination a {
+      text-decoration: none;
+      color: #0369a1;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .pagination .pg-label { color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; }
+    .pagination .pg-title { font-size: 16px; font-weight: 700; color: #0c2a4a; }
+    .pagination a:hover .pg-title { color: #0369a1; }
+
+    /* ── FOOTER ──────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #94a3b8;
+      font-size: 12px;
+      border-top: 1px solid #f1f5f9;
+    }
+    footer a { color: #0369a1; text-decoration: none; }
+
+    /* ── PAGES (shown/hidden via JS) ─────────────────────── */
+    .page { display: none; }
+    .page.active { display: block; }
   </style>
 </head>
 <body>
-  <div id="app"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a class="navbar-brand" href="#">
+      <img src="icon48.png" alt="Salesforce Field Inspector" />
+      Salesforce Field Inspector
+    </a>
+    <div class="nav-links">
+      <a href="#welcome"        class="nav-link active">Welcome</a>
+      <a href="#get-started"    class="nav-link">Get Started</a>
+      <a href="#features"       class="nav-link">Features</a>
+      <a href="#privacy-policy" class="nav-link">Privacy Policy</a>
+    </div>
+    <a class="navbar-gh" href="https://github.com/amrit-suman/Salesforce-Field-Inspector" target="_blank" rel="noopener noreferrer">⭐ GitHub</a>
+  </nav>
+
+  <div class="page-wrapper">
+
+    <!-- ── WELCOME ────────────────────────────────────────── -->
+    <div id="page-welcome" class="page active">
+      <div class="hero">
+        <img src="icon48.png" alt="Salesforce Field Inspector" />
+        <div>
+          <h1>Welcome</h1>
+          <p>Thank you for using <strong>Salesforce Field Inspector</strong>, a Chrome and Edge extension that lets you hover over any field on a Salesforce Lightning record page to instantly see its API name, type, formula, picklist values, history tracking, and more.</p>
+        </div>
+      </div>
+
+      <h2>Features</h2>
+      <ul>
+        <li>🔍 Instant field metadata on hover — no Setup navigation required</li>
+        <li>📋 One-click <strong>Copy API Name</strong> to clipboard</li>
+        <li>🧮 Full <strong>Formula</strong> body in a scrollable code block</li>
+        <li>📦 <strong>Picklist values</strong> with a link to view all in Salesforce Setup</li>
+        <li>🔗 <strong>Lookup &amp; Master-Detail</strong> — referenced object, relationship name, cascade delete</li>
+        <li>📊 <strong>Precision &amp; Scale</strong> for Currency, Number, and Percent fields</li>
+        <li>✅ Field access flags — Required, Updateable, Createable, Unique, External ID, Encrypted</li>
+        <li>🕒 <strong>History Tracked</strong> status via Salesforce Tooling API</li>
+        <li>🔒 <strong>Check FLS ↗</strong> — opens Salesforce Inspector with a pre-built FieldPermissions SOQL</li>
+      </ul>
+
+      <div class="callout">
+        💡 Built to complement <strong>Salesforce Inspector Advanced</strong> and <strong>Salesforce Inspector Reloaded</strong>. Use this extension to identify a field instantly on the page, then hand off to Salesforce Inspector for deeper FLS analysis via the <strong>Check FLS ↗</strong> button.
+      </div>
+
+      <div class="badge-row">
+        <span class="badge"><span class="b-label">Extension</span><span class="b-val">v1.0.0</span></span>
+        <span class="badge"><span class="b-label">Chrome</span><span class="b-val blue">MV3</span></span>
+        <span class="badge"><span class="b-label">Platform</span><span class="b-val">Chrome · Edge</span></span>
+      </div>
+
+      <div class="pagination">
+        <span></span>
+        <a href="#get-started" class="nav-link">
+          <span class="pg-label">NEXT ›</span>
+          <span class="pg-title">Get Started</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ── GET STARTED ─────────────────────────────────────── -->
+    <div id="page-get-started" class="page">
+      <h1>Get Started</h1>
+      <p>Get Salesforce Field Inspector running in under a minute.</p>
+
+      <h2>Requirements</h2>
+      <ul>
+        <li><strong>Browser</strong> — Google Chrome or Microsoft Edge</li>
+        <li><strong>Salesforce</strong> — Lightning Experience enabled on your org</li>
+        <li><strong>Page type</strong> — Standard Lightning record pages (<code>/lightning/r/*/view</code>)</li>
+        <li><strong>Permission</strong> — API Enabled on your Salesforce user profile</li>
+      </ul>
+
+      <h2>Installation</h2>
+      <ol>
+        <li><a href="https://github.com/amrit-suman/Salesforce-Field-Inspector" target="_blank" rel="noopener noreferrer">Download or clone the repository</a></li>
+        <li>Open Chrome or Edge and go to <code>chrome://extensions</code></li>
+        <li>Enable <strong>Developer mode</strong> (toggle in the top-right corner)</li>
+        <li>Click <strong>Load unpacked</strong></li>
+        <li>Select the <code>Salesforce-Field-Inspector</code> folder</li>
+        <li>Navigate to any Salesforce Lightning record page — the extension activates automatically</li>
+      </ol>
+
+      <h2>How to Use</h2>
+      <ol>
+        <li>Open any Salesforce record page (Account, Contact, Opportunity, or any custom object)</li>
+        <li>Hover over a <strong>field label</strong> or <strong>field value</strong> for ~0.8 seconds</li>
+        <li>The metadata tooltip appears — move your mouse into it to keep it open</li>
+        <li>Click <strong>Copy API Name</strong> to copy the field's API name to your clipboard</li>
+        <li>Click <strong>Check FLS ↗</strong> to open field-level security analysis in Salesforce Inspector</li>
+        <li>Click <strong>✕</strong> or anywhere outside the tooltip to dismiss it</li>
+      </ol>
+
+      <h2>Check FLS Button</h2>
+      <p>The <strong>Check FLS ↗</strong> button requires one of the following extensions to be installed:</p>
+      <ul>
+        <li><strong>Salesforce Inspector Advanced</strong> — takes priority if both are installed</li>
+        <li><strong>Salesforce Inspector Reloaded</strong></li>
+      </ul>
+      <p>Both are available on the Chrome Web Store. If neither is installed, clicking the button shows an installation prompt.</p>
+
+      <h2>Troubleshooting</h2>
+      <h3>Tooltip does not appear</h3>
+      <p>Confirm you are on a <code>/lightning/r/</code> record page — not a list view, Setup page, or App Builder. Reload the Salesforce page after installing the extension.</p>
+
+      <h3>"Session expired" error</h3>
+      <p>Click <strong>↺ Reload Page</strong> in the tooltip or manually refresh the Salesforce page. Sessions expire after the configured idle timeout (default 2 hours in Salesforce).</p>
+
+      <h3>"Field not found" error</h3>
+      <p>The field may be a compound field (Name, Address) or an internal system field. Hover directly over a sub-field (e.g. City or Street) rather than the compound wrapper.</p>
+
+      <h3>"Check FLS ↗" shows an alert</h3>
+      <p>Install <strong>Salesforce Inspector Advanced</strong> or <strong>Salesforce Inspector Reloaded</strong> from the Chrome Web Store and ensure it is enabled.</p>
+
+      <div class="pagination">
+        <a href="#welcome" class="nav-link">
+          <span class="pg-label">‹ PREV</span>
+          <span class="pg-title">Welcome</span>
+        </a>
+        <a href="#features" class="nav-link">
+          <span class="pg-label">NEXT ›</span>
+          <span class="pg-title">Features</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ── FEATURES ───────────────────────────────────────── -->
+    <div id="page-features" class="page">
+      <h1>Features</h1>
+      <p>A complete breakdown of everything Salesforce Field Inspector shows you.</p>
+
+      <h2>Field Metadata Tooltip</h2>
+      <p>Hover over any field label or value on a Lightning record page for 0.8 seconds and a tooltip appears with full field metadata. The tooltip stays open when you move your mouse into it.</p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="fc-icon">📋</div>
+          <div class="fc-title">API Name</div>
+          <div class="fc-desc">Highlighted in blue. Click <strong>Copy API Name</strong> to copy to clipboard with a ✓ confirmation.</div>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon">🏷️</div>
+          <div class="fc-title">Label &amp; Type</div>
+          <div class="fc-desc">Display label and human-readable type — e.g. Formula (Text), Master-Detail, Multi-Select Picklist.</div>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon">🔗</div>
+          <div class="fc-title">Lookup &amp; Master-Detail</div>
+          <div class="fc-desc">Referenced object, relationship API name, and cascade delete flag.</div>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon">🧮</div>
+          <div class="fc-title">Formula</div>
+          <div class="fc-desc">Full formula body in a scrollable code block — no need to open the field editor.</div>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon">📦</div>
+          <div class="fc-title">Picklist Values</div>
+          <div class="fc-desc">Up to 8 active values shown inline. <strong>+N more</strong> opens all values in Salesforce Setup.</div>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon">🕒</div>
+          <div class="fc-title">History Tracked</div>
+          <div class="fc-desc">Yes / No status fetched from the Salesforce Tooling API (EntityParticle).</div>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon">✅</div>
+          <div class="fc-title">Access Flags</div>
+          <div class="fc-desc">Required, Updateable, Createable, Unique, External ID, Encrypted.</div>
+        </div>
+        <div class="feature-card">
+          <div class="fc-icon">🔒</div>
+          <div class="fc-title">Check FLS ↗</div>
+          <div class="fc-desc">Opens Salesforce Inspector with a pre-built FieldPermissions SOQL to check profile and permission set access.</div>
+        </div>
+      </div>
+
+      <h2>FLS SOQL</h2>
+      <p>The <strong>Check FLS ↗</strong> button pre-fills this query in Salesforce Inspector's Data Export tab:</p>
+      <pre><code>SELECT Parent.Label, Parent.Profile.Name, Parent.IsOwnedByProfile,
+       PermissionsRead, PermissionsEdit
+FROM FieldPermissions
+WHERE SobjectType = 'Account'
+AND Field = 'Account.Industry'
+ORDER BY Parent.IsOwnedByProfile DESC, Parent.Profile.Name</code></pre>
+      <p><code>Parent.IsOwnedByProfile = true</code> → Profile &nbsp;|&nbsp; <code>false</code> → Permission Set or Permission Set Group</p>
+
+      <h2>All Supported Field Types</h2>
+      <p>Text · Text Area · Long Text Area · Checkbox · Number · Currency · Percent · Date · Date/Time · Time · Email · Phone · URL · Picklist · Multi-Select Picklist · Lookup · Master-Detail · Formula · Auto Number · Record ID · Geolocation · Encrypted Text · File (Base64)</p>
+
+      <h2>Performance</h2>
+      <table>
+        <tr><th>Behaviour</th><th>Detail</th></tr>
+        <tr><td>Hover delay</td><td>800 ms — tooltip only triggers after cursor stays on a field</td></tr>
+        <tr><td>Object metadata cache</td><td>5 minutes per object — repeated hovers generate no extra API calls</td></tr>
+        <tr><td>History tracking cache</td><td>5 minutes per field</td></tr>
+        <tr><td>Inspector detection cache</td><td>Lifetime of the page — checked once per page load</td></tr>
+      </table>
+
+      <h2>Limitations</h2>
+      <ul>
+        <li><strong>Lightning Experience only</strong> — does not work on Classic, list views, Setup pages, Flow screens, or App Builder</li>
+        <li><strong>Compound fields</strong> — Name and Address compound wrappers are not resolved; hover over sub-fields (First Name, City, etc.)</li>
+        <li><strong>System fields</strong> — some internal fields may not resolve if they have no visible label in the DOM</li>
+        <li><strong>API access required</strong> — the running user must have API Enabled in their profile or permission set</li>
+      </ul>
+
+      <div class="pagination">
+        <a href="#get-started" class="nav-link">
+          <span class="pg-label">‹ PREV</span>
+          <span class="pg-title">Get Started</span>
+        </a>
+        <a href="#privacy-policy" class="nav-link">
+          <span class="pg-label">NEXT ›</span>
+          <span class="pg-title">Privacy Policy</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ── PRIVACY POLICY ──────────────────────────────────── -->
+    <div id="page-privacy-policy" class="page">
+      <h1>Privacy Policy</h1>
+      <p><strong>Extension:</strong> Salesforce Field Inspector &nbsp;·&nbsp; <strong>Last updated:</strong> March 2026</p>
+
+      <h2>Overview</h2>
+      <p>Salesforce Field Inspector displays field schema metadata in a tooltip when you hover over fields on Salesforce Lightning record pages. This policy describes exactly what data the extension accesses, how it is used, and what it does not do.</p>
+
+      <h2>Data We Access</h2>
+      <h3>Salesforce Session Cookie (<code>sid</code>)</h3>
+      <p>Used solely as a Bearer token to authenticate calls to your own Salesforce org's REST and Tooling APIs. It is:</p>
+      <ul>
+        <li>Held in memory for the lifetime of the current page only</li>
+        <li>Never written to disk, <code>localStorage</code>, or any persistent storage</li>
+        <li>Never transmitted to any server other than your own Salesforce org</li>
+        <li>Discarded automatically when you navigate away or close the tab</li>
+      </ul>
+
+      <h3>Field Schema Metadata</h3>
+      <p>Fetched from your own Salesforce org only. Schema-level only — <strong>no record data, no user data, no personal information is ever read</strong>. Cached in memory for 5 minutes and discarded on navigation.</p>
+
+      <h2>Data We Do Not Access</h2>
+      <ul>
+        <li><strong>No record data</strong> — field values are never read</li>
+        <li><strong>No personal information</strong> — no names, emails, user IDs, or profile data</li>
+        <li><strong>No browsing history</strong> — scoped to Salesforce Lightning record pages only</li>
+        <li><strong>No clipboard reads</strong> — clipboard access is write-only (Copy API Name button)</li>
+      </ul>
+
+      <h2>Security Principles</h2>
+      <div>
+        <div class="privacy-principle"><span class="pp-icon">🛡️</span><div><div class="pp-title">Local Data Only</div><div class="pp-desc">All data stays on your device. Nothing is sent to any external server.</div></div></div>
+        <div class="privacy-principle"><span class="pp-icon">🚫</span><div><div class="pp-title">No Third-Party Sharing</div><div class="pp-desc">Data is never shared with, sold to, or transmitted to any third party for any purpose.</div></div></div>
+        <div class="privacy-principle"><span class="pp-icon">📵</span><div><div class="pp-title">No Data Collection</div><div class="pp-desc">No personal or record data is collected, stored, or used.</div></div></div>
+        <div class="privacy-principle"><span class="pp-icon">⚖️</span><div><div class="pp-title">No Legal Disclosures</div><div class="pp-desc">No personal data is collected, so none can be shared for legal or compliance purposes.</div></div></div>
+        <div class="privacy-principle"><span class="pp-icon">🔐</span><div><div class="pp-title">Privacy by Design</div><div class="pp-desc">Only the minimum permissions strictly necessary to function are requested.</div></div></div>
+      </div>
+
+      <h2>Permissions</h2>
+      <table>
+        <tr><th>Permission</th><th>Why it is needed</th></tr>
+        <tr><td><code>cookies</code></td><td>Reads the <code>sid</code> session cookie to authenticate REST API calls to your Salesforce org</td></tr>
+        <tr><td><code>clipboardWrite</code></td><td>Powers the Copy API Name button — write-only, the extension never reads your clipboard</td></tr>
+        <tr><td><code>management</code></td><td>Detects whether Salesforce Inspector is installed to enable the Check FLS button</td></tr>
+        <tr><td>Host access to <code>*.salesforce.com</code></td><td>Required to inject the content script and call the Salesforce REST/Tooling APIs</td></tr>
+      </table>
+
+      <h2>Contact</h2>
+      <p>For questions about this privacy policy, open an issue on the <a href="https://github.com/amrit-suman/Salesforce-Field-Inspector/issues" target="_blank" rel="noopener noreferrer">GitHub repository</a>.</p>
+
+      <div class="pagination">
+        <a href="#features" class="nav-link">
+          <span class="pg-label">‹ PREV</span>
+          <span class="pg-title">Features</span>
+        </a>
+        <span></span>
+      </div>
+    </div>
+
+  </div><!-- /page-wrapper -->
+
+  <footer>
+    Salesforce Field Inspector &nbsp;·&nbsp;
+    <a href="https://github.com/amrit-suman/Salesforce-Field-Inspector" target="_blank" rel="noopener noreferrer">GitHub</a>
+  </footer>
+
   <script>
-    window.$docsify = {
-      name: '<img src="icon48.png" alt=""> Salesforce Field Inspector',
-      nameLink: '/',
-      repo: 'https://github.com/amrit-suman/Salesforce-Field-Inspector',
-      basePath: '/Salesforce-Field-Inspector/',
-      loadSidebar: true,
-      loadNavbar: false,
-      subMaxLevel: 1,
-      auto2top: true,
-      routerMode: 'hash',
-      pagination: {
-        previousText: 'PREV',
-        nextText: 'NEXT',
-        crossChapter: true,
-        crossChapterText: true,
-      },
+    const pages = {
+      'welcome':        'page-welcome',
+      'get-started':    'page-get-started',
+      'features':       'page-features',
+      'privacy-policy': 'page-privacy-policy',
     };
+
+    function showPage(hash) {
+      const key = hash.replace('#', '') || 'welcome';
+      const pageId = pages[key] || 'page-welcome';
+
+      // Show/hide pages
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId)?.classList.add('active');
+
+      // Update active nav link
+      document.querySelectorAll('.nav-link').forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + key);
+      });
+
+      window.scrollTo(0, 0);
+    }
+
+    // Handle hash changes
+    window.addEventListener('hashchange', () => showPage(window.location.hash));
+
+    // Handle nav clicks and pagination links
+    document.querySelectorAll('.nav-link').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const hash = a.getAttribute('href');
+        history.pushState(null, '', hash);
+        showPage(hash);
+      });
+    });
+
+    // Initial load
+    showPage(window.location.hash);
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
 </body>
 </html>
