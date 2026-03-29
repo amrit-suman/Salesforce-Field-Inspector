@@ -22,7 +22,7 @@ Hover over any field label or value on a record page and a tooltip appears showi
 | **Picklist values**                    | Up to 8 active values shown inline; click **+N more** to open all values in Salesforce Setup |
 | **Currency / Number**                  | Precision (total digits) and decimal places                        |
 | **Text**                               | Maximum character length                                           |
-| **Required / Updateable**              | Field-level access flags                                           |
+| **Required / Updateable / Createable** | Field-level access flags                                           |
 | **Unique / External ID / Encrypted**   | Special field flags                                                |
 | **Default Value**                      | Configured default if present                                      |
 | **History Tracked**                    | Whether field history tracking is enabled (Yes / No)               |
