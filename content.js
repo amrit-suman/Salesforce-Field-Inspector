@@ -208,7 +208,7 @@ const SFFieldInspector = (() => {
    * Works even when the cookie is HttpOnly.
    */
   function getCookieSid(url) {
-    if (typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) return Promise.resolve(null);
+    if (!chrome.runtime?.sendMessage) return Promise.resolve(null);
     return new Promise((resolve) => {
       try {
         chrome.runtime.sendMessage(
@@ -354,6 +354,9 @@ const SFFieldInspector = (() => {
    * Silently returns null on any error so it never blocks the main tooltip.
    */
   async function describeTooling(objectApiName, fieldApiName) {
+    // Validate both names before embedding in SOQL — prevents injection even from unexpected sources
+    if (!SF_API_NAME_RE.test(objectApiName) || !SF_API_NAME_RE.test(fieldApiName)) return null;
+
     const cacheKey = `${objectApiName}.${fieldApiName}`;
     const cached   = toolingCache[cacheKey];
     if (cached && Date.now() - cached.ts < CACHE_TTL_MS) return cached.data;
@@ -414,6 +417,9 @@ const SFFieldInspector = (() => {
    * ORDER BY puts Profiles first, then alphabetical within each group.
    */
   function buildFlsSoql(objectApiName, fieldApiName) {
+    // Validate both names before embedding in SOQL — prevents injection even from unexpected sources
+    if (!SF_API_NAME_RE.test(objectApiName) || !SF_API_NAME_RE.test(fieldApiName)) return null;
+
     // Parent.Label = human-readable name for both Profiles and Permission Sets.
     // Parent.Name  = API name, which for profiles is an internal ID-like string — not useful.
     // Parent.IsOwnedByProfile: true = Profile, false = Permission Set / Permission Set Group.
@@ -689,7 +695,7 @@ const SFFieldInspector = (() => {
     document.getElementById('sf-fi-copy-btn')?.addEventListener('click', async (e) => {
       const btn = e.currentTarget;
       if (!btn) return;
-      const name = btn?.dataset?.copy;
+      const name = btn.dataset?.copy;
       if (!name) return;
       try {
         await navigator.clipboard.writeText(name);
@@ -704,7 +710,7 @@ const SFFieldInspector = (() => {
 
     document.getElementById('sf-fi-open-inspector-btn')?.addEventListener('click', (e) => {
       const url = e.currentTarget?.dataset?.url;
-      if (url) {
+      if (url && url.startsWith('chrome-extension://')) {
         window.open(url, '_blank');
       } else {
         alert('To use Check FLS, please install one of the following Chrome extensions:\n\n• Salesforce Inspector Advanced\n• Salesforce Inspector Reloaded');
@@ -741,7 +747,7 @@ const SFFieldInspector = (() => {
 
       const sfHost = new URL(getInstanceUrl()).hostname;
       const flsSoql = buildFlsSoql(objectApiName, field.name);
-      const inspectorUrl = inspectorExtId
+      const inspectorUrl = (inspectorExtId && flsSoql)
         ? `chrome-extension://${inspectorExtId}/data-export.html?host=${encodeURIComponent(sfHost)}&query=${encodeURIComponent(flsSoql)}`
         : null;
 

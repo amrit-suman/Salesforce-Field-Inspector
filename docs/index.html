@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salesforce Field Inspector</title>
+  <meta name="description" content="Hover over any field on a Salesforce Lightning record page to instantly see its API name, type, formula, and more." />
+  <link rel="icon" type="image/png" href="icon48.png" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css" />
+  <style>
+    :root {
+      --theme-color: #0ea5e9;
+      --base-font-size: 15px;
+      --sidebar-width: 220px;
+    }
+    .app-name-link img {
+      width: 32px;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    window.$docsify = {
+      name: '<img src="icon48.png" alt=""> Salesforce Field Inspector',
+      nameLink: '/',
+      repo: 'https://github.com/amrit-suman/Salesforce-Field-Inspector',
+      loadSidebar: true,
+      loadNavbar: false,
+      subMaxLevel: 2,
+      auto2top: true,
+      routerMode: 'hash',
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+</body>
+</html>
