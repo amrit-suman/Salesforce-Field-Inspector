@@ -1,5 +1,5 @@
 /**
- * SF Field Inspector - content.js
+ * Salesforce Field Inspector - content.js
  * Hover over any field on a Salesforce Lightning record page to see full field metadata.
  */
 
@@ -7,7 +7,7 @@ const SFFieldInspector = (() => {
   'use strict';
 
   // ─── Constants ────────────────────────────────────────────────────────────
-  const HOVER_DELAY_MS  = 400;
+  const HOVER_DELAY_MS  = 800;
   const HIDE_DELAY_MS   = 350;
   const CACHE_TTL_MS    = 5 * 60 * 1000;
   const FETCH_TIMEOUT_MS = 10000;
@@ -15,10 +15,15 @@ const SFFieldInspector = (() => {
   // Salesforce API names: letters/digits/underscores, optional namespace suffix
   const SF_API_NAME_RE = /^[A-Za-z][A-Za-z0-9_]{0,79}(__c|__mdt|__e|__b|__x|__Share|__History|__Feed)?$/;
 
+  // Salesforce Inspector extension IDs (Chrome Web Store)
+  const SF_INSPECTOR_ADVANCED_ID = 'dbfimaflmomgldabcphgolbeoamjogji'; // Salesforce Inspector Advanced
+  const SF_INSPECTOR_RELOADED_ID = 'hpijlohoihegkfehhibggnkbjhoemldh'; // Salesforce Inspector Reloaded
+
   // ─── State ────────────────────────────────────────────────────────────────
   // Object.create(null) — no prototype, eliminates prototype-pollution risk
   const metaCache     = Object.create(null);
   const toolingCache  = Object.create(null);
+  let   cachedInspectorId = undefined; // undefined = unchecked, null = neither installed
   let   apiVersion     = null;
   let   tooltipEl      = null;
   let   hoverTimer     = null;
@@ -378,6 +383,29 @@ const SFFieldInspector = (() => {
     }
   }
 
+  // ─── Salesforce Inspector detection ──────────────────────────────────────
+
+  /**
+   * Asks the background service worker which SF Inspector extension is installed.
+   * Background can fetch chrome-extension:// URLs; content scripts cannot.
+   * Falls back to Reloaded ID so the button always opens something if detection fails.
+   * Result is cached for the lifetime of the page.
+   */
+  async function resolveInspectorExtId() {
+    if (cachedInspectorId !== undefined) return cachedInspectorId;
+    cachedInspectorId = await new Promise((resolve) => {
+      try {
+        chrome.runtime.sendMessage({ type: 'SF_FI_RESOLVE_INSPECTOR' }, (response) => {
+          if (chrome.runtime?.lastError) { resolve(null); return; }
+          resolve(response?.extId ?? null);
+        });
+      } catch {
+        resolve(null);
+      }
+    });
+    return cachedInspectorId;
+  }
+
   // ─── FLS SOQL builder ─────────────────────────────────────────────────────
 
   /**
@@ -433,7 +461,7 @@ const SFFieldInspector = (() => {
     return TYPE_LABELS[field.type] ?? field.type;
   }
 
-  function buildRows(field) {
+  function buildRows(field, objectApiName) {
     const rows = [];
     const add = (label, value, opts = {}) => {
       if (value === null || value === undefined || value === '') return;
@@ -470,8 +498,14 @@ const SFFieldInspector = (() => {
       const active = (field.picklistValues ?? []).filter(v => v.active);
       if (active.length) {
         const shown   = active.slice(0, 8).map(v => v.label).join(', ');
-        const surplus = active.length > 8 ? ` … +${active.length - 8} more` : '';
-        add('Active Values', shown + surplus);
+        if (active.length > 8) {
+          const setupUrl = objectApiName
+            ? `${getInstanceUrl()}/lightning/setup/ObjectManager/${objectApiName}/FieldsAndRelationships/${field.name}/view`
+            : null;
+          rows.push({ label: 'Active Values', value: shown, surplus: active.length - 8, link: setupUrl });
+        } else {
+          add('Active Values', shown);
+        }
       }
       if (field.restrictedPicklist) add('Restricted', 'Yes');
     }
@@ -574,7 +608,7 @@ const SFFieldInspector = (() => {
 
   function renderLoading() {
     setContent(`
-      <div class="sf-fi-header"><span class="sf-fi-icon">⚡</span> SF Field Inspector</div>
+      <div class="sf-fi-header"><span class="sf-fi-icon">⚡</span> Salesforce Field Inspector</div>
       <div class="sf-fi-loading"><div class="sf-fi-spinner"></div>Fetching field metadata…</div>
     `);
   }
@@ -591,7 +625,7 @@ const SFFieldInspector = (() => {
       : '';
 
     setContent(`
-      <div class="sf-fi-header"><span class="sf-fi-icon">⚡</span> SF Field Inspector</div>
+      <div class="sf-fi-header"><span class="sf-fi-icon">⚡</span> Salesforce Field Inspector</div>
       <div class="sf-fi-error">⚠ ${esc(msg)}</div>
       ${extra}
     `);
@@ -603,8 +637,8 @@ const SFFieldInspector = (() => {
     }
   }
 
-  function renderField(field, objectApiName) {
-    const rows = buildRows(field);
+  function renderField(field, objectApiName, inspectorUrl) {
+    const rows = buildRows(field, objectApiName);
     let rowsHtml = '';
     rows.forEach(row => {
       if (row.block) {
@@ -615,27 +649,25 @@ const SFFieldInspector = (() => {
       } else {
         const hl   = row.highlight ? ' sf-fi-highlight' : '';
         const mono = row.mono      ? ' sf-fi-mono'      : '';
+        const surplusHtml = row.surplus
+          ? (row.link
+              ? ` … <a class="sf-fi-link" href="${esc(row.link)}" target="_blank" rel="noopener noreferrer">+${row.surplus} more</a>`
+              : ` … +${row.surplus} more`)
+          : '';
         rowsHtml += `<div class="sf-fi-row">
           <span class="sf-fi-lbl">${esc(row.label)}</span>
-          <span class="sf-fi-val${hl}${mono}">${esc(row.value)}</span>
+          <span class="sf-fi-val${hl}${mono}">${esc(row.value)}${surplusHtml}</span>
         </div>`;
       }
     });
 
-    const flsSoql = buildFlsSoql(objectApiName, field.name);
-
-    // Salesforce Inspector Reloaded — fixed Chrome Web Store extension ID.
-    // host param = my.salesforce.com hostname derived dynamically from current page.
-    // query param pre-fills the SOQL in the data export window.
-    const SF_INSPECTOR_EXT_ID = 'hpijlohoihegkfehhibggnkbjhoemldh';
-    const sfHost       = new URL(getInstanceUrl()).hostname;
-    const sfInspectorUrl = `chrome-extension://${SF_INSPECTOR_EXT_ID}/data-export.html` +
-                           `?host=${encodeURIComponent(sfHost)}` +
-                           `&query=${encodeURIComponent(flsSoql)}`;
+    const inspectorTitle = inspectorUrl
+      ? 'Open FLS check in Salesforce Inspector'
+      : 'Requires Salesforce Inspector or Salesforce Inspector Reloaded to be installed';
 
     setContent(`
       <div class="sf-fi-header">
-        <span class="sf-fi-icon">⚡</span> SF Field Inspector
+        <span class="sf-fi-icon">⚡</span> Salesforce Field Inspector
         <button class="sf-fi-close" id="sf-fi-close-btn" title="Close">✕</button>
       </div>
       <div class="sf-fi-body">
@@ -644,7 +676,8 @@ const SFFieldInspector = (() => {
       <div class="sf-fi-footer">
         <button class="sf-fi-btn" id="sf-fi-copy-btn" data-copy="${esc(field.name)}">Copy API Name</button>
         <button class="sf-fi-btn" id="sf-fi-open-inspector-btn"
-                data-url="${esc(sfInspectorUrl)}" title="Open FLS SOQL in Salesforce Inspector Reloaded">Check FLS ↗</button>
+                data-url="${esc(inspectorUrl ?? '')}"
+                title="${esc(inspectorTitle)}">Check FLS ↗</button>
       </div>
     `);
 
@@ -671,7 +704,11 @@ const SFFieldInspector = (() => {
 
     document.getElementById('sf-fi-open-inspector-btn')?.addEventListener('click', (e) => {
       const url = e.currentTarget?.dataset?.url;
-      if (url) window.open(url, '_blank');
+      if (url) {
+        window.open(url, '_blank');
+      } else {
+        alert('To use Check FLS, please install one of the following Chrome extensions:\n\n• Salesforce Inspector Advanced\n• Salesforce Inspector Reloaded');
+      }
     });
   }
 
@@ -695,11 +732,20 @@ const SFFieldInspector = (() => {
         return;
       }
 
-      // Step 2: fetch history-tracking for this specific field (cached per object.field)
-      const tooling = await describeTooling(objectApiName, field.name);
+      // Step 2: history tracking + inspector detection in parallel (both cached after first call)
+      const [tooling, inspectorExtId] = await Promise.all([
+        describeTooling(objectApiName, field.name),
+        resolveInspectorExtId(),
+      ]);
       if (tooling) field = { ...field, isHistoryTracked: tooling.isHistoryTracked };
 
-      renderField(field, objectApiName);
+      const sfHost = new URL(getInstanceUrl()).hostname;
+      const flsSoql = buildFlsSoql(objectApiName, field.name);
+      const inspectorUrl = inspectorExtId
+        ? `chrome-extension://${inspectorExtId}/data-export.html?host=${encodeURIComponent(sfHost)}&query=${encodeURIComponent(flsSoql)}`
+        : null;
+
+      renderField(field, objectApiName, inspectorUrl);
       positionTooltip(x, y);   // re-position now that full content is rendered
       showTooltip();
     } catch (err) {

@@ -1,5 +1,5 @@
 /* ============================================================
-   SF Field Inspector — Tooltip Styles
+   Salesforce Field Inspector — Tooltip Styles
    These are injected into every Salesforce page.
    All rules are scoped to #sf-fi-tooltip to avoid conflicts.
    ============================================================ */
@@ -207,6 +207,16 @@
   color:      #7dd3fc !important;
   max-height: 100px !important;
   font-size:  10px !important;
+}
+
+/* ── Inline links (e.g. picklist "see more") ─────────────── */
+#sf-fi-tooltip .sf-fi-link {
+  color:           #38bdf8 !important;
+  text-decoration: underline !important;
+  cursor:          pointer !important;
+}
+#sf-fi-tooltip .sf-fi-link:hover {
+  color: #7dd3fc !important;
 }
 
 /* ── Footer ──────────────────────────────────────────────── */

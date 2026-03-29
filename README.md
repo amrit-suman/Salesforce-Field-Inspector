@@ -1,6 +1,10 @@
-# SF Field Inspector
+# Salesforce Field Inspector
 
-A Chrome extension that shows complete field metadata in a tooltip when you hover over any field on a Salesforce Lightning record page — no Setup navigation required.
+A Chrome extension that brings instant field metadata to your fingertips on any Salesforce Lightning record page — built to complement **Salesforce Inspector Advanced** and **Salesforce Inspector Reloaded**.
+
+While Salesforce Inspector excels at data export, SOQL querying, and org-wide inspection, **Salesforce Field Inspector fills the gap on record pages**: hover over any field and instantly see its API name, type, formula, picklist values, history tracking, and more — without leaving the page or opening Setup.
+
+The two extensions work best together. Use this extension to identify the field, then hand off to Salesforce Inspector for deeper data or FLS analysis via the built-in **Check FLS ↗** button.
 
 ---
 
@@ -15,7 +19,7 @@ Hover over any field label or value on a record page and a tooltip appears showi
 | **Type**                               | Human-readable type (Text, Lookup, Formula (Text), Picklist, etc.) |
 | **Lookup / Master-Detail**             | Referenced object, relationship name, cascade delete flag          |
 | **Formula**                            | Full formula body in a scrollable code block                       |
-| **Picklist values**                    | Up to 8 active values shown inline                                 |
+| **Picklist values**                    | Up to 8 active values shown inline; click **+N more** to open all values in Salesforce Setup |
 | **Currency / Number**                  | Precision (total digits) and decimal places                        |
 | **Text**                               | Maximum character length                                           |
 | **Required / Updateable / Createable** | Field-level access flags                                           |
@@ -33,12 +37,12 @@ Hover over any field label or value on a record page and a tooltip appears showi
 2. Open Chrome and go to `chrome://extensions`
 3. Enable **Developer mode** (toggle in the top-right)
 4. Click **Load unpacked**
-5. Select the `SF Field Inspector` folder
+5. Select the `SF Field Inspector` folder (the extension directory)
 6. Navigate to any Salesforce Lightning record page — the extension activates automatically
 
 ### Requirements
 
-- Google Chrome (or any Chromium-based browser)
+- Google Chrome or Microsoft Edge (tested on both)
 - A Salesforce org with Lightning Experience enabled
 - Pages must match the pattern `/lightning/r/*/view` (standard record pages)
 
@@ -47,32 +51,66 @@ Hover over any field label or value on a record page and a tooltip appears showi
 ## How to use
 
 1. Open any Salesforce record page (e.g. an Account, Contact, Opportunity)
-2. Hover over a **field label** or **field value** for ~0.4 seconds
+2. Hover over a **field label** or **field value** for ~0.8 seconds
 3. The metadata tooltip appears — move your mouse into the tooltip to keep it open
 4. Click **Copy API Name** to copy the field's API name to your clipboard
-5. Click **Check FLS ↗** to open the field's profile/permission set access in [Salesforce Inspector Reloaded](#fls--salesforce-inspector-reloaded)
+5. Click **Check FLS ↗** to open the field's profile/permission set access in Salesforce Inspector
 6. Click **✕** or click anywhere outside the tooltip to dismiss it
 
 ---
 
-## FLS — Salesforce Inspector Reloaded
+## FLS — Check Field-Level Security
 
-The **Check FLS ↗** button opens [Salesforce Inspector Reloaded](https://chrome.google.com/webstore/detail/salesforce-inspector-relo/hpijlohoihegkfehhibggnkbjhoemldh) with the following SOQL pre-filled in the Data Export tab:
+The **Check FLS ↗** button opens **Salesforce Inspector Advanced** or **Salesforce Inspector Reloaded** (whichever is installed) with the following SOQL pre-filled in the Data Export tab:
 
 ```sql
 SELECT Parent.Label, Parent.Profile.Name, Parent.IsOwnedByProfile, PermissionsRead, PermissionsEdit
 FROM FieldPermissions
 WHERE SobjectType = 'Account'
-  AND Field = 'Account.Industry'
+AND Field = 'Account.Industry'
 ORDER BY Parent.IsOwnedByProfile DESC, Parent.Profile.Name
 ```
 
-`Parent.IsOwnedByProfile` is the flag to distinguish record types:
+`Parent.IsOwnedByProfile` distinguishes the permission holder:
 
 - `true` — the row is a **Profile**
 - `false` — the row is a **Permission Set** or Permission Set Group
 
-Salesforce Inspector Reloaded must be installed separately for this button to work. If it is not installed the button opens a blank tab.
+If neither extension is installed, clicking **Check FLS ↗** shows an alert with installation instructions. Salesforce Inspector Advanced takes priority if both are installed.
+
+---
+
+## Limitations
+
+### Page type
+
+- **Lightning Experience only** — the extension only activates on Lightning record pages matching the URL pattern `/lightning/r/*/view`. It does not work on:
+  - Salesforce Classic
+  - List views, related lists, or list view modals
+  - Setup pages (Object Manager, Profiles, etc.)
+  - Flow screens, Einstein Analytics, or embedded pages in iframes with a different origin
+  - App Builder / Lightning App Builder preview
+
+### Field coverage
+
+- **Compound fields are not supported** — the Name field (split into First Name / Last Name) and Address fields (split into Street, City, State, etc.) are multi-component fields. The describe API returns the compound wrapper (`Name`, `BillingAddress`) but Lightning renders individual sub-components. Hover directly over a sub-field (e.g. City, Street) rather than the compound label.
+- **System / internal fields may not resolve** — fields like `SystemModstamp`, `IsDeleted`, `LastReferencedDate`, and certain internal metadata fields are returned by the describe API but may not have a visible label element in the DOM that the extension can target.
+- **Child relationship fields** — fields displayed inside related lists or inline-edited child records on a parent record page are not detected; the hover target must be on the primary record form.
+- **Geolocation sub-fields** — `Latitude__s` / `Longitude__s` compound sub-fields may not map cleanly to a describe result depending on how Lightning renders them.
+
+### API and session
+
+- **Requires API access** — the running user must have API Enabled in their profile/permission set. Users without API access will see a `403` or authentication error.
+- **Session must be active** — the extension reads the `sid` cookie or `window.$A` session. If the Salesforce session expires, a "Session expired" error is shown. Refreshing the page re-establishes the session.
+- **Read-only metadata** — the extension only reads field metadata; it does not write, update, or delete any data in your org.
+- **API rate limits** — metadata describe calls count against your org's API request limits (24-hour rolling window). Results are cached for 5 minutes per object to minimise calls.
+
+### Browser and environment
+
+- **Tested on Chrome and Edge** — the extension uses Chrome Extension Manifest V3 APIs and has been verified on Google Chrome and Microsoft Edge.
+- **Firefox is not supported** — Firefox uses a different extension API and has not been tested.
+- **Check FLS requires a companion extension** — the **Check FLS ↗** button requires **Salesforce Inspector Advanced** or **Salesforce Inspector Reloaded** to be installed and enabled. Without one of these, the button shows an alert.
+- **No offline support** — all metadata is fetched live from the Salesforce REST and Tooling APIs; the extension does not function without network access to your org.
 
 ---
 
@@ -124,7 +162,7 @@ All results are cached in memory for 5 minutes so repeated hovers on the same ob
 ## File structure
 
 ```
-SF Field Inspector/
+Salesforce Field Inspector/
 ├── manifest.json       # Chrome extension manifest (MV3)
 ├── content.js          # Main logic — shadow DOM traversal, tooltip, API calls
 ├── page_bridge.js      # Runs in MAIN world to access window.$A / window.sforce
@@ -152,6 +190,6 @@ SF Field Inspector/
 - The field may be a compound field (Address, Name) or an internal system field not returned by the describe API
 - Hover directly over an individual sub-field (e.g. Street, City) rather than the compound wrapper
 
-**"Check FLS ↗" opens a blank tab**
+**"Check FLS ↗" shows an alert or does nothing**
 
-- Install [Salesforce Inspector Reloaded](https://chrome.google.com/webstore/detail/salesforce-inspector-relo/hpijlohoihegkfehhibggnkbjhoemldh) from the Chrome Web Store
+- Install **Salesforce Inspector Advanced** or **Salesforce Inspector Reloaded** from the Chrome Web Store and make sure it is enabled

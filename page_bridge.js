@@ -1,5 +1,5 @@
 /**
- * SF Field Inspector — page_bridge.js
+ * Salesforce Field Inspector — page_bridge.js
  *
  * Runs in the PAGE (MAIN) world to access Salesforce JS globals
  * (window.$A, window.sforce) which are not accessible from the isolated content script.
