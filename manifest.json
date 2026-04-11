@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Salesforce Field Inspector",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Hover over any field on a Salesforce record page to instantly see its API name, type, formula, lookup references, and more.",
   "permissions": ["clipboardWrite", "cookies", "management"],
   "background": {
