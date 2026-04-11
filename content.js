@@ -19,6 +19,13 @@ const SFFieldInspector = (() => {
   const SF_INSPECTOR_ADVANCED_ID = 'dbfimaflmomgldabcphgolbeoamjogji'; // Salesforce Inspector Advanced
   const SF_INSPECTOR_RELOADED_ID = 'hpijlohoihegkfehhibggnkbjhoemldh'; // Salesforce Inspector Reloaded
 
+  // ─── Record page detection ────────────────────────────────────────────────
+  const RECORD_URL_RE = /\/lightning\/r\/[^/]+\/[a-zA-Z0-9]{15,18}(\/|$)/;
+
+  function isRecordPage(url = window.location.href) {
+    return RECORD_URL_RE.test(url);
+  }
+
   // ─── State ────────────────────────────────────────────────────────────────
   // Object.create(null) — no prototype, eliminates prototype-pollution risk
   const metaCache     = Object.create(null);
@@ -30,6 +37,7 @@ const SFFieldInspector = (() => {
   let   hideTimer      = null;
   let   currentApiName = null;
   let   lastFieldEl    = null;
+  let   listenersAttached = false;
 
   // ─── Fetch with timeout ───────────────────────────────────────────────────
 
@@ -812,16 +820,43 @@ const SFFieldInspector = (() => {
 
   // ─── SPA navigation watch ─────────────────────────────────────────────────
 
+  function attachListeners() {
+    if (listenersAttached) return;
+    listenersAttached = true;
+    // passive: true — we never call preventDefault on mousemove
+    document.addEventListener('mousemove',  handleMouseMove,    { capture: true, passive: true });
+    document.addEventListener('mousedown',  handleOutsideClick, { capture: true });
+  }
+
+  function detachListeners() {
+    if (!listenersAttached) return;
+    listenersAttached = false;
+    document.removeEventListener('mousemove',  handleMouseMove,    true);
+    document.removeEventListener('mousedown',  handleOutsideClick, true);
+  }
+
   function watchNavigation() {
     let lastUrl = window.location.href;
     const observer = new MutationObserver(() => {
-      if (window.location.href !== lastUrl) {
-        lastUrl = window.location.href;
-        clearTimeout(hoverTimer);
-        clearTimeout(hideTimer);
-        lastFieldEl  = null;
-        currentApiName = null;
-        hideTooltip();
+      const currentUrl = window.location.href;
+      if (currentUrl === lastUrl) return;
+
+      const wasRecord = isRecordPage(lastUrl);
+      const isRecord  = isRecordPage(currentUrl);
+      lastUrl = currentUrl;
+
+      clearTimeout(hoverTimer);
+      clearTimeout(hideTimer);
+      hoverTimer = null;
+      hideTimer  = null;
+      lastFieldEl    = null;
+      currentApiName = null;
+      if (tooltipEl) hideTooltip();
+
+      if (isRecord && !wasRecord) {
+        attachListeners();
+      } else if (!isRecord && wasRecord) {
+        detachListeners();
       }
     });
     observer.observe(document.body, { childList: true, subtree: true });
@@ -841,8 +876,7 @@ const SFFieldInspector = (() => {
   }
 
   function cleanup() {
-    document.removeEventListener('mousemove',  handleMouseMove,   true);
-    document.removeEventListener('mousedown',  handleOutsideClick, true);
+    detachListeners();
     clearTimeout(hoverTimer);
     clearTimeout(hideTimer);
     tooltipEl?.remove();
@@ -850,13 +884,12 @@ const SFFieldInspector = (() => {
   }
 
   function init() {
-    // passive: true — we never call preventDefault on mousemove, so marking it
-    // passive improves scroll performance on the page
-    document.addEventListener('mousemove',  handleMouseMove,    { capture: true, passive: true });
-    // Hide immediately when clicking outside the tooltip
-    document.addEventListener('mousedown',  handleOutsideClick, { capture: true });
     watchNavigation();
     window.addEventListener('beforeunload', cleanup, { once: true });
+    // If the page was loaded directly on a record URL, activate immediately
+    if (isRecordPage()) {
+      attachListeners();
+    }
   }
 
   return { init };
